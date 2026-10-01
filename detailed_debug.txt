@@ -1,0 +1,33 @@
+=== DETAILED DEBUG TEST ===
+
+TEST 1: Reading CIDC_001.txt
+✅ File read successfully
+Content length: 291 bytes
+
+TEST 2: Message block splitting
+Found 1 blocks
+  Block 0: [REQUEST][RESPONSE] - Pid: 12345
+Requests: 1, Responses: 1
+
+TEST 3: Field extraction from first message
+STAN (Field 011): 555001
+PAN (Field 002): 5234567890123456
+Channel (Field 123): UPI
+
+TEST 4: Correlation key
+Correlation key would be: 5234567890123456:555001
+
+TEST 5: Timestamp parsing
+Request timestamp: 09/27/2026 10:30:45.123
+Response timestamp: 09/27/2026 10:30:45.309
+
+TEST 6: TAT calculation
+TAT = 186 ms
+✅ TAT calculation successful!
+
+TEST 7: Database tables
+DB exists: true
+DB size: 16384 bytes
+Note: To check if transactions were stored, run:
+  sqlite3 test_data/correlation.db "SELECT COUNT(*) FROM tat_transactions;"
+

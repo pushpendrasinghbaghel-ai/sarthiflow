@@ -1,0 +1,48 @@
+[DEBUG] TAT Extractor starting...
+[DEBUG] Configuration loaded
+[DEBUG] Log path: ./test_logs/
+[DEBUG] Export configuration logged
+[APP] Initializing Dynatrace Metrics API exporter
+[DEBUG-API] DynatraceMetricsAPIExporter initialized
+[DEBUG-API] Endpoint: https://fhq90909.live.dynatrace.com/api/v2/metrics/ingest
+[DEBUG-API] exportMetrics called. Found 0 completed transactions
+[DEBUG] Processing file: CIDC_001.txt
+[DEBUG-API] No transactions to export
+[DEBUG] File size: 316, Last offset: 0
+[DEBUG] Reading 316 bytes new
+[DEBUG] Found 3 message blocks
+[DEBUG] Parsing message block...
+[DEBUG] Parsed message ID: 1200, Direction: Received
+[DEBUG-CORR] Processing message. Key: 9229814714205000026|661765234767, Direction: Received
+[DEBUG-CORR] Stored request. Pending count: 1
+[DEBUG] Message processed successfully
+[DEBUG] Parsing message block...
+[DEBUG] Parsed message ID: 1210, Direction: Sent
+[DEBUG-CORR] Processing message. Key: 9229814714205000026|661765234767, Direction: Sent
+[DEBUG-CORR] Looking for matching request...
+[DEBUG-CORR] MATCHED! TAT = 186 ms
+[DEBUG] Message processed successfully
+[DEBUG] Processed 2 messages total
+[DEBUG] Processing file: CIDC_001.txt
+[DEBUG] File size: 316, Last offset: 316
+[DEBUG] No new content in CIDC_001.txt
+[DEBUG] Processing file: CIDC_001.txt
+[DEBUG] File size: 316, Last offset: 316
+[DEBUG] No new content in CIDC_001.txt
+[DEBUG-API] exportMetrics called. Found 1 completed transactions
+[DEBUG-API] Exporting 1 transactions via Dynatrace Metrics API
+[DEBUG] Processing file: CIDC_001.txt
+[DEBUG] File size: 316, Last offset: 316
+[DEBUG] No new content in CIDC_001.txt
+[DEBUG-API] TAT: 186ms (channel=UPI)
+[DEBUG-API] Channel UPI: avg=186ms, min=186ms, max=186ms, count=1
+[DEBUG-API] Success rate: 100.0%
+[DEBUG-API] Building payload with 6 metric series
+[DEBUG-API] Payload size: 672 bytes
+[DEBUG-API] Sending to: https://fhq90909.live.dynatrace.com/api/v2/metrics/ingest
+[DEBUG-API] HTTP Response: 415 Unsupported Media Type
+[DEBUG-API] ? Export failed. Code: 415
+[DEBUG-API] Response body: {"error":{"code":415,"message":"Unsupported/Missing 'Content-Type' header."}}
+[DEBUG] Processing file: CIDC_001.txt
+[DEBUG] File size: 316, Last offset: 316
+[DEBUG] No new content in CIDC_001.txt

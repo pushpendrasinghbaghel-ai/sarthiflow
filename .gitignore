@@ -1,0 +1,23 @@
+# Java / Maven
+/target/
+/**/target/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local runtime data
+*.db
+*.sqlite
+*.log
+/data/
+/test-output/

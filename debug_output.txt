@@ -1,0 +1,63 @@
+=== DEBUG TEST ===
+Test file exists: true
+File size: 291 bytes
+File content:
+Pid: 12345
+MessageId: 1
+Received At: 09/27/2026 10:30:45.123
+Field 002: 5234567890123456
+Field 011: 555001
+Field 123: UPI
+Field 039: 
+<=========>
+Pid: 12345
+MessageId: 1
+Sent At: 09/27/2026 10:30:45.309
+Field 002: 5234567890123456
+Field 011: 555001
+Field 123: UPI
+Field 039: 000
+<=========>
+
+
+Found 3 message blocks
+
+--- Block 0 ---
+Pid: 12345
+MessageId: 1
+Received At: 09/27/2026 10:30:45.123
+Field 002: 5234567890123456
+Field 011: 555001
+Field 123: UPI
+Field 039: 
+
+Has 'Received At': true
+Has 'Sent At': false
+Has 'Field 011': true
+Has 'Field 002': true
+
+--- Block 1 ---
+
+Pid: 12345
+MessageId: 1
+Sent At: 09/27/2026 10:30:45.309
+Field 002: 5234567890123456
+Field 011: 555001
+Field 123: UPI
+Field 039: 000
+
+Has 'Received At': false
+Has 'Sent At': true
+Has 'Field 011': true
+Has 'Field 002': true
+
+--- Block 2 ---
+
+
+Has 'Received At': false
+Has 'Sent At': false
+Has 'Field 011': false
+Has 'Field 002': false
+
+Database exists: true
+DB size: 16384 bytes

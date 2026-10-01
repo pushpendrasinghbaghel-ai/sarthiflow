@@ -1,0 +1,7 @@
+﻿java : Error: Unable to access jarfile target\iso8583-tat-extractor.jar
+At line:20 char:1
++ java -Xmx2g -jar target\iso8583-tat-extractor.jar 2>&1 | Tee-Object t ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Error: Unable t...t-extractor.jar:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
