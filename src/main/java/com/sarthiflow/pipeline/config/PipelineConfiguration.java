@@ -2,6 +2,7 @@ package com.sarthiflow.pipeline.config;
 
 import com.sarthiflow.pipeline.blueprint.BlueprintConfig;
 import com.sarthiflow.pipeline.blueprint.MetricDefinition;
+import com.sarthiflow.pipeline.blueprint.MetricSource;
 import com.sarthiflow.pipeline.blueprint.MetricType;
 import com.sarthiflow.pipeline.parse.EventParser;
 import com.sarthiflow.pipeline.parse.Iso8583EventParser;
@@ -100,7 +101,10 @@ public final class PipelineConfiguration {
         if (blueprintConfig.hasPath("metrics")) {
             for (Config metric : blueprintConfig.getConfigList("metrics")) {
                 builder.addMetric(new MetricDefinition(metric.getString("name"),
-                        MetricType.valueOf(metric.getString("type").toUpperCase(Locale.ROOT))));
+                    MetricType.valueOf(metric.getString("type").toUpperCase(Locale.ROOT)),
+                    metric.hasPath("source")
+                        ? MetricSource.valueOf(metric.getString("source").toUpperCase(Locale.ROOT))
+                        : defaultMetricSource(metric.getString("type"))));
             }
         }
         this.blueprint = builder.build();
@@ -170,4 +174,14 @@ public final class PipelineConfiguration {
     public String getSenderMode() { return senderMode; }
     public long getSenderPollIntervalMillis() { return senderPollIntervalMillis; }
     public int getSenderBatchSize() { return senderBatchSize; }
+
+    private MetricSource defaultMetricSource(String type) {
+        switch (MetricType.valueOf(type.toUpperCase(Locale.ROOT))) {
+            case HISTOGRAM: return MetricSource.LATENCY_MS;
+            case COUNTER: return MetricSource.COUNT;
+            case RATE: return MetricSource.THROUGHPUT_PER_SECOND;
+            case GAUGE: return MetricSource.AVG_LATENCY_MS;
+            default: throw new IllegalArgumentException("Unsupported metric type: " + type);
+        }
+    }
 }

@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
 
@@ -263,9 +264,13 @@ public class BlueprintPipelineTest {
     public void shouldSendMetricsToLocalOtlpEndpoint() throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress("localhost", 0), 0);
         final boolean[] received = {false};
+                AtomicReference<String> payload = new AtomicReference<>();
+                AtomicReference<String> authorization = new AtomicReference<>();
 
         server.createContext("/v1/metrics", exchange -> {
             received[0] = true;
+                        payload.set(new String(exchange.getRequestBody().readAllBytes()));
+                        authorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
             exchange.getResponseHeaders().add("Content-Type", "application/json");
             String response = "{\"status\":\"ok\"}";
             exchange.sendResponseHeaders(200, response.getBytes().length);
@@ -277,7 +282,10 @@ public class BlueprintPipelineTest {
 
         try {
             String endpoint = "http://localhost:" + server.getAddress().getPort() + "/v1/metrics";
-            OtlpMetricSender sender = new OtlpMetricSender(endpoint, "test-token");
+                        OtlpMetricSender sender = new OtlpMetricSender(endpoint, "test-token", Arrays.asList(
+                                        new MetricDefinition("custom.duration", MetricType.HISTOGRAM),
+                                        new MetricDefinition("custom.operations", MetricType.COUNTER),
+                                        new MetricDefinition("custom.rate", MetricType.RATE)));
 
             MetricBucket bucket = new MetricBucket(
                     Instant.parse("2026-10-01T10:00:00Z"),
@@ -294,6 +302,17 @@ public class BlueprintPipelineTest {
 
             sender.send(Collections.singletonList(bucket));
             assertTrue(received[0]);
+            assertTrue(payload.get().contains("sarthiflow.custom.duration"));
+            assertTrue(payload.get().contains("sarthiflow.custom.operations"));
+            assertTrue(payload.get().contains("sarthiflow.custom.rate"));
+            assertTrue(payload.get().contains("\"aggregationTemporality\":1"));
+            assertFalse(payload.get().contains("sarthiflow.transaction.success_rate"));
+            assertEquals("Bearer test-token", authorization.get());
+
+            new OtlpMetricSender(endpoint, "test-token").send(Collections.singletonList(bucket));
+            assertTrue(payload.get().contains("sarthiflow.event.latency"));
+            assertTrue(payload.get().contains("sarthiflow.event.count"));
+            assertFalse(payload.get().contains("payment"));
         } finally {
             server.stop(0);
         }

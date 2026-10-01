@@ -31,7 +31,8 @@ public final class AggregatorService implements AutoCloseable {
         this.config = config;
         this.store = new SqlitePipelineStore(config.getDatabasePath());
         this.aggregator = new MetricAggregator(config.getBlueprint());
-        this.sender = new OtlpMetricSender(config.getOtlpEndpoint(), config.getOtlpToken());
+        this.sender = new OtlpMetricSender(config.getOtlpEndpoint(), config.getOtlpToken(),
+            config.getBlueprint().getMetrics());
     }
 
     public int exportOnce() throws SQLException, IOException {

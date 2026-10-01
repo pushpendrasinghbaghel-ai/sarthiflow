@@ -22,14 +22,14 @@ public final class MetricBucket {
                         long successCount, long errorCount, long minLatencyMs,
                         long maxLatencyMs, double avgLatencyMs, long p95LatencyMs,
                         long p99LatencyMs) {
-                this(bucketStart, dimensions, count, successCount, errorCount, minLatencyMs,
-                    maxLatencyMs, avgLatencyMs, p95LatencyMs, p99LatencyMs, 60L);
-                }
+        this(bucketStart, dimensions, count, successCount, errorCount, minLatencyMs,
+            maxLatencyMs, avgLatencyMs, p95LatencyMs, p99LatencyMs, 60L);
+        }
 
-                public MetricBucket(Instant bucketStart, Map<String, String> dimensions, long count,
-                        long successCount, long errorCount, long minLatencyMs,
-                        long maxLatencyMs, double avgLatencyMs, long p95LatencyMs,
-                        long p99LatencyMs, long bucketSeconds) {
+        public MetricBucket(Instant bucketStart, Map<String, String> dimensions, long count,
+                long successCount, long errorCount, long minLatencyMs,
+                long maxLatencyMs, double avgLatencyMs, long p95LatencyMs,
+                long p99LatencyMs, long bucketSeconds) {
         this.bucketStart = bucketStart;
         this.dimensions = Collections.unmodifiableMap(new LinkedHashMap<>(dimensions));
         this.count = count;
@@ -56,6 +56,7 @@ public final class MetricBucket {
     public double getAvgLatencyMs() { return avgLatencyMs; }
     public long getP95LatencyMs() { return p95LatencyMs; }
     public long getP99LatencyMs() { return p99LatencyMs; }
+    public long getBucketSeconds() { return bucketSeconds; }
     public double getSuccessRate() {
         long classified = successCount + errorCount;
         return classified == 0 ? 0.0d : (double) successCount / classified;

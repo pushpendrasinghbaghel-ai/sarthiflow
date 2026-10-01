@@ -23,9 +23,15 @@ sarthiflow {
     response-status-field = "response_code"
     success-values = ["000"]
     metrics = [
-      { name = "transaction.latency", type = "HISTOGRAM" }
-      { name = "transaction.count", type = "COUNTER" }
-      { name = "transaction.throughput", type = "RATE" }
+      { name = "transaction.latency", type = "HISTOGRAM", source = "LATENCY_MS" }
+      { name = "transaction.count", type = "COUNTER", source = "COUNT" }
+      { name = "transaction.success_count", type = "COUNTER", source = "SUCCESS_COUNT" }
+      { name = "transaction.error_count", type = "COUNTER", source = "ERROR_COUNT" }
+      { name = "transaction.latency.p95", type = "GAUGE", source = "P95_LATENCY_MS" }
+      { name = "transaction.latency.p99", type = "GAUGE", source = "P99_LATENCY_MS" }
+      { name = "transaction.success_rate", type = "RATE", source = "SUCCESS_RATE" }
+      { name = "transaction.error_rate", type = "RATE", source = "ERROR_RATE" }
+      { name = "transaction.throughput_per_second", type = "RATE", source = "THROUGHPUT_PER_SECOND" }
     ]
   }
 

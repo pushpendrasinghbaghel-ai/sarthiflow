@@ -72,6 +72,11 @@ public class ReaderSenderIntegrationTest {
                             + "    response-status-field = status\n"
                             + "    success-values = [ok]\n"
                             + "    granularity = 1m\n"
+                            + "    metrics = [\n"
+                            + "      { name = transaction.latency, type = HISTOGRAM, source = LATENCY_MS }\n"
+                            + "      { name = custom.event.count, type = COUNTER, source = COUNT }\n"
+                            + "      { name = custom.event.rate, type = RATE, source = THROUGHPUT_PER_SECOND }\n"
+                            + "    ]\n"
                             + "  }\n"
                             + "  sender {\n"
                             + "    endpoint = \"" + endpointUrl + "\"\n"
@@ -100,6 +105,9 @@ public class ReaderSenderIntegrationTest {
         assertEquals(2, attempts.get());
         assertNotNull(payload.get());
         assertTrue(payload.get().contains("sarthiflow.transaction.latency"));
+        assertTrue(payload.get().contains("sarthiflow.custom.event.count"));
+        assertTrue(payload.get().contains("sarthiflow.custom.event.rate"));
+        assertFalse(payload.get().contains("sarthiflow.transaction.success_rate"));
         assertTrue(payload.get().contains("checkout"));
         try (SqlitePipelineStore store = new SqlitePipelineStore(database.getAbsolutePath())) {
             assertTrue(store.findUnexportedEvents("generic-json", 100).isEmpty());

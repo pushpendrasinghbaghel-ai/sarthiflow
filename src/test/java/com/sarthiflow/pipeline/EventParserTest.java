@@ -89,6 +89,6 @@ public class EventParserTest {
         assertEquals("iso8583", config.getFormat());
         assertEquals("iso8583-tat", config.getBlueprintName());
         assertEquals("batch", config.getMode());
-        assertEquals(3, config.getBlueprint().getMetrics().size());
+        assertEquals(9, config.getBlueprint().getMetrics().size());
     }
 }
