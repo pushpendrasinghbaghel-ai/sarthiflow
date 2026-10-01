@@ -22,7 +22,6 @@ Most log-processing pipelines are tightly coupled to a single protocol or one me
 
 ## Architecture overview
 
-```text
 Raw logs / files
       ?
 Reader service
@@ -38,7 +37,6 @@ Aggregator by dimensions and time bucket
 Metric store
       ?
 OTLP / collector exporter
-```
 
 ## Example metric model
 
@@ -53,7 +51,6 @@ OTLP / collector exporter
 
 ## Example blueprint
 
-```yaml
 blueprint:
   name: payment-latency
   correlationKeyField: txn_id
@@ -71,7 +68,6 @@ blueprint:
     - latency_ms
     - tx_count
     - success_rate
-```
 
 ## Intended use cases
 
@@ -88,3 +84,4 @@ This project is being shaped as a generic open-source blueprint platform for tel
 ## License
 
 MIT
+
