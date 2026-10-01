@@ -1,6 +1,7 @@
 package com.sarthiflow.pipeline;
 
 import com.sarthiflow.pipeline.blueprint.BuiltInBlueprints;
+import com.sarthiflow.pipeline.config.PipelineConfiguration;
 import com.sarthiflow.pipeline.parse.EventParseException;
 import com.sarthiflow.pipeline.parse.EventParser;
 import com.sarthiflow.pipeline.parse.Iso8583EventParser;
@@ -11,6 +12,7 @@ import org.junit.Test;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -61,16 +63,32 @@ public class EventParserTest {
                 + "MessageId: 1200\n"
                 + "Field 002: 4111111111111111\n"
                 + "Field 011: 123456\n"
-                + "Field 123: ATM\n";
+                + "Field 123: ATM\n"
+                + "Field 125: account-reference\n"
+                + "Field 127: cardholder-name-and-account-data\n";
 
         RawEvent event = new Iso8583EventParser().parse(block).orElseThrow(AssertionError::new);
 
         assertEquals("REQ", event.get("direction"));
         assertEquals("ATM", event.get("channel"));
-        assertEquals("123456", event.get("field.011"));
         assertNotNull(event.get("correlation_key"));
         assertFalse(event.getFields().containsKey("field.002"));
-        assertFalse(event.getFields().values().stream().anyMatch(value -> value.contains("4111111111111111")));
+        assertFalse(event.getFields().containsKey("field.011"));
+        assertFalse(event.getFields().containsKey("field.125"));
+        assertFalse(event.getFields().containsKey("field.127"));
+        assertFalse(event.getFields().values().stream().anyMatch(value -> value.contains("4111111111111111")
+            || value.contains("cardholder-name-and-account-data")));
         assertEquals("iso8583-tat", BuiltInBlueprints.iso8583Tat().getName());
+    }
+
+    @Test
+    public void shouldLoadTheShippedConfigurationExample() {
+        PipelineConfiguration config = PipelineConfiguration.loadFile(
+                Paths.get("src/main/resources/sarthiflow.conf.example"));
+
+        assertEquals("iso8583", config.getFormat());
+        assertEquals("iso8583-tat", config.getBlueprintName());
+        assertEquals("batch", config.getMode());
+        assertEquals(3, config.getBlueprint().getMetrics().size());
     }
 }

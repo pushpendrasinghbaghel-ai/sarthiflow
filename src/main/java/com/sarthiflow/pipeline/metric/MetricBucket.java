@@ -16,11 +16,20 @@ public final class MetricBucket {
     private final double avgLatencyMs;
     private final long p95LatencyMs;
     private final long p99LatencyMs;
+    private final long bucketSeconds;
 
     public MetricBucket(Instant bucketStart, Map<String, String> dimensions, long count,
                         long successCount, long errorCount, long minLatencyMs,
                         long maxLatencyMs, double avgLatencyMs, long p95LatencyMs,
                         long p99LatencyMs) {
+                this(bucketStart, dimensions, count, successCount, errorCount, minLatencyMs,
+                    maxLatencyMs, avgLatencyMs, p95LatencyMs, p99LatencyMs, 60L);
+                }
+
+                public MetricBucket(Instant bucketStart, Map<String, String> dimensions, long count,
+                        long successCount, long errorCount, long minLatencyMs,
+                        long maxLatencyMs, double avgLatencyMs, long p95LatencyMs,
+                        long p99LatencyMs, long bucketSeconds) {
         this.bucketStart = bucketStart;
         this.dimensions = Collections.unmodifiableMap(new LinkedHashMap<>(dimensions));
         this.count = count;
@@ -31,6 +40,10 @@ public final class MetricBucket {
         this.avgLatencyMs = avgLatencyMs;
         this.p95LatencyMs = p95LatencyMs;
         this.p99LatencyMs = p99LatencyMs;
+        if (bucketSeconds <= 0) {
+            throw new IllegalArgumentException("Bucket duration must be positive");
+        }
+        this.bucketSeconds = bucketSeconds;
     }
 
     public Instant getBucketStart() { return bucketStart; }
@@ -43,4 +56,15 @@ public final class MetricBucket {
     public double getAvgLatencyMs() { return avgLatencyMs; }
     public long getP95LatencyMs() { return p95LatencyMs; }
     public long getP99LatencyMs() { return p99LatencyMs; }
+    public double getSuccessRate() {
+        long classified = successCount + errorCount;
+        return classified == 0 ? 0.0d : (double) successCount / classified;
+    }
+    public double getErrorRate() {
+        long classified = successCount + errorCount;
+        return classified == 0 ? 0.0d : (double) errorCount / classified;
+    }
+    public double getThroughputPerSecond() {
+        return (double) count / bucketSeconds;
+    }
 }

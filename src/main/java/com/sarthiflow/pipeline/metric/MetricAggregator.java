@@ -45,7 +45,7 @@ public final class MetricAggregator {
             Instant start = Instant.ofEpochSecond(timestamp.getEpochSecond() / bucketSeconds * bucketSeconds);
             Map<String, String> dimensions = dimensionsFor(event);
             BucketKey key = new BucketKey(start, dimensions);
-            buckets.computeIfAbsent(key, ignored -> new MutableBucket(start, dimensions)).add(event);
+            buckets.computeIfAbsent(key, ignored -> new MutableBucket(start, dimensions, bucketSeconds)).add(event);
         }
 
         List<MetricBucket> result = new ArrayList<>();
@@ -129,14 +129,16 @@ public final class MetricAggregator {
     private static final class MutableBucket {
         private final Instant start;
         private final Map<String, String> dimensions;
+        private final long bucketSeconds;
         private final List<Long> latencies = new ArrayList<>();
         private long successCount;
         private long errorCount;
         private long sum;
 
-        private MutableBucket(Instant start, Map<String, String> dimensions) {
+        private MutableBucket(Instant start, Map<String, String> dimensions, long bucketSeconds) {
             this.start = start;
             this.dimensions = new LinkedHashMap<>(dimensions);
+            this.bucketSeconds = bucketSeconds;
         }
 
         private void add(CorrelatedEvent event) {
@@ -154,7 +156,7 @@ public final class MetricAggregator {
             latencies.sort(Comparator.naturalOrder());
             return new MetricBucket(start, dimensions, latencies.size(), successCount, errorCount,
                     latencies.get(0), latencies.get(latencies.size() - 1),
-                    (double) sum / latencies.size(), percentile(0.95), percentile(0.99));
+                    (double) sum / latencies.size(), percentile(0.95), percentile(0.99), bucketSeconds);
         }
 
         private long percentile(double quantile) {

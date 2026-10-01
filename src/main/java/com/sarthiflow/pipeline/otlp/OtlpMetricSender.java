@@ -48,6 +48,10 @@ public final class OtlpMetricSender {
             metrics.add(sum("sarthiflow.transaction.error_count", bucket, bucket.getErrorCount()));
             metrics.add(gauge("sarthiflow.transaction.latency.p95", bucket, bucket.getP95LatencyMs()));
             metrics.add(gauge("sarthiflow.transaction.latency.p99", bucket, bucket.getP99LatencyMs()));
+                metrics.add(doubleGauge("sarthiflow.transaction.success_rate", bucket, bucket.getSuccessRate()));
+                metrics.add(doubleGauge("sarthiflow.transaction.error_rate", bucket, bucket.getErrorRate()));
+                metrics.add(doubleGauge("sarthiflow.transaction.throughput_per_second", bucket,
+                    bucket.getThroughputPerSecond()));
         }
 
         JsonObject scopeMetrics = new JsonObject();
@@ -128,9 +132,25 @@ public final class OtlpMetricSender {
         return metric;
     }
 
+    private JsonObject doubleGauge(String name, MetricBucket bucket, double value) {
+        JsonArray dataPoints = new JsonArray();
+        JsonObject point = point(bucket);
+        point.addProperty("asDouble", value);
+        dataPoints.add(point);
+        JsonObject gauge = new JsonObject();
+        gauge.add("dataPoints", dataPoints);
+        JsonObject metric = new JsonObject();
+        metric.addProperty("name", name);
+        metric.add("gauge", gauge);
+        return metric;
+    }
+
     private JsonObject point(MetricBucket bucket) {
         JsonObject point = new JsonObject();
-        point.addProperty("timeUnixNano", bucket.getBucketStart().toEpochMilli() * 1_000_000L);
+        long timeUnixNano = Math.addExact(
+            Math.multiplyExact(bucket.getBucketStart().getEpochSecond(), 1_000_000_000L),
+            bucket.getBucketStart().getNano());
+        point.add("timeUnixNano", new JsonPrimitive(Long.toString(timeUnixNano)));
         JsonArray attributes = new JsonArray();
         for (Map.Entry<String, String> dimension : bucket.getDimensions().entrySet()) {
             attributes.add(attribute(dimension.getKey(), dimension.getValue()));

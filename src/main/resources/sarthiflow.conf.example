@@ -1,0 +1,39 @@
+sarthiflow {
+  database-path = "data/sarthiflow.db"
+
+  reader {
+    inputs = ["sample-data/sample-logs.txt"]
+    format = "iso8583"
+    mode = "batch"
+    workers = 4
+    poll-interval-ms = 1000
+  }
+
+  blueprint {
+    name = "iso8583-tat"
+    correlation-key-field = "correlation_key"
+    request-type-field = "direction"
+    response-type-field = "direction"
+    request-value = "REQ"
+    response-value = "RESP"
+    timestamp-field = "timestamp"
+    dimensions = ["channel", "response_code"]
+    granularity = "1m"
+    correlation-timeout-seconds = 3600
+    response-status-field = "response_code"
+    success-values = ["000"]
+    metrics = [
+      { name = "transaction.latency", type = "HISTOGRAM" }
+      { name = "transaction.count", type = "COUNTER" }
+      { name = "transaction.throughput", type = "RATE" }
+    ]
+  }
+
+  sender {
+    endpoint = "http://localhost:4318/v1/metrics"
+    token-env = "OTLP_TOKEN"
+    mode = "batch"
+    poll-interval-ms = 5000
+    batch-size = 10000
+  }
+}

@@ -34,11 +34,6 @@ public final class Iso8583EventParser implements EventParser {
             fields.put("message_id", message.getMessageId());
             fields.put("channel", message.getChannel());
             fields.put("response_code", message.getResponseCode());
-            for (Map.Entry<String, String> field : message.getFields().entrySet()) {
-                if (!"002".equals(field.getKey())) {
-                    fields.put("field." + field.getKey(), field.getValue());
-                }
-            }
             return Optional.of(new RawEvent(fields));
         } catch (RuntimeException e) {
             throw new EventParseException("Invalid ISO8583 log record", e);

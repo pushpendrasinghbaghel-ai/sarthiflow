@@ -22,21 +22,28 @@ Most log-processing pipelines are tightly coupled to a single protocol or one me
 
 ## Architecture overview
 
-Raw logs / files
-      ?
-Reader service
-      ?
-Parser + blueprint extraction
-      ?
-Correlation engine
-      ?
-Raw event store
-      ?
-Aggregator by dimensions and time bucket
-      ?
-Metric store
-      ?
-OTLP / collector exporter
+```text
+Raw files -> Reader -> blueprint parser -> correlation -> SQLite event store
+                                                        |
+                                   Aggregator/Sender <-+
+                                       -> OTLP/HTTP
+```
+
+## Build And Run
+
+Requirements: Java 11+ and Maven 3.8+.
+
+Copy `src/main/resources/sarthiflow.conf.example` to `sarthiflow.conf`, then set the input paths and OTLP endpoint. The example contains no credentials; if the endpoint requires a bearer token, set the environment variable named by `sender.token-env`.
+
+```powershell
+mvn clean package
+java -jar target/sarthiflow-1.0.0-reader.jar sarthiflow.conf
+java -jar target/sarthiflow-1.0.0-sender.jar sarthiflow.conf
+```
+
+The Reader supports `reader.mode = batch` for one scan or `tail` for repeated polling. The sender supports the same modes through `sender.mode`; failed OTLP requests are retried on later polls. The previous combined application remains available as `target/sarthiflow-1.0.0-legacy.jar` during migration.
+
+Both processes must currently access the same SQLite database on the same host/local filesystem. SQLite WAL is not a distributed database; deploying the pair on separate fleet hosts requires replacing the store with a server database or message broker.
 
 ## Example metric model
 

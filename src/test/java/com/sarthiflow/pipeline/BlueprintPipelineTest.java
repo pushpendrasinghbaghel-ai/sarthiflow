@@ -9,6 +9,8 @@ import com.sarthiflow.pipeline.event.RawEvent;
 import com.sarthiflow.pipeline.metric.MetricAggregator;
 import com.sarthiflow.pipeline.metric.MetricBucket;
 import com.sarthiflow.pipeline.otlp.OtlpMetricSender;
+import com.sarthiflow.pipeline.store.StoredCorrelatedPair;
+import com.sarthiflow.pipeline.store.StoredRawEvent;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.Test;
 
@@ -166,6 +168,9 @@ public class BlueprintPipelineTest {
         assertEquals(5000L, atmBucket.getMinLatencyMs());
         assertEquals(7000L, atmBucket.getMaxLatencyMs());
         assertEquals(2, atmBucket.getSuccessCount());
+        assertEquals(1.0d, atmBucket.getSuccessRate(), 0.0001d);
+        assertEquals(0.0d, atmBucket.getErrorRate(), 0.0001d);
+        assertEquals(2.0d / 60.0d, atmBucket.getThroughputPerSecond(), 0.0001d);
     }
 
     @Test
@@ -226,6 +231,32 @@ public class BlueprintPipelineTest {
 
         assertEquals(1, correlated.size());
         assertEquals(0L, correlated.get(0).getLatencyMs());
+    }
+
+    @Test
+    public void shouldPreserveDurableRowIdsWhenCorrelatingStoredEvents() {
+        BlueprintConfig config = new BlueprintConfig.Builder()
+                .name("generic-events")
+                .correlationKeyField("request_id")
+                .requestTypeField("kind")
+                .responseTypeField("kind")
+                .requestValue("begin")
+                .responseValue("finish")
+                .timestampField("occurred_at")
+                .build();
+        StoredRawEvent request = new StoredRawEvent(41L, "txn-1", "begin",
+                Instant.parse("2026-10-01T10:00:00Z"), new RawEvent(Map.of(
+                "request_id", "txn-1", "kind", "begin", "occurred_at", "2026-10-01T10:00:00Z")));
+        StoredRawEvent response = new StoredRawEvent(42L, "txn-1", "finish",
+                Instant.parse("2026-10-01T10:00:00.100Z"), new RawEvent(Map.of(
+                "request_id", "txn-1", "kind", "finish", "occurred_at", "2026-10-01T10:00:00.100Z")));
+
+        List<StoredCorrelatedPair> pairs = new CorrelationEngine(config)
+                .correlateStored(Arrays.asList(response, request));
+
+        assertEquals(1, pairs.size());
+        assertEquals(41L, pairs.get(0).getRequest().getId());
+        assertEquals(42L, pairs.get(0).getResponse().getId());
     }
 
     @Test

@@ -2,6 +2,8 @@ package com.sarthiflow.pipeline.correlation;
 
 import com.sarthiflow.pipeline.blueprint.BlueprintConfig;
 import com.sarthiflow.pipeline.event.RawEvent;
+import com.sarthiflow.pipeline.store.StoredCorrelatedPair;
+import com.sarthiflow.pipeline.store.StoredRawEvent;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -9,6 +11,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +69,28 @@ public final class CorrelationEngine {
             }
         }
         return correlated;
+    }
+
+    public List<StoredCorrelatedPair> correlateStored(List<StoredRawEvent> events) {
+        if (events == null || events.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<RawEvent> rawEvents = new ArrayList<>(events.size());
+        Map<RawEvent, StoredRawEvent> storedByIdentity = new IdentityHashMap<>();
+        for (StoredRawEvent stored : events) {
+            rawEvents.add(stored.getEvent());
+            storedByIdentity.put(stored.getEvent(), stored);
+        }
+
+        List<StoredCorrelatedPair> pairs = new ArrayList<>();
+        for (CorrelatedEvent event : correlate(rawEvents)) {
+            StoredRawEvent request = storedByIdentity.get(event.getRequest());
+            StoredRawEvent response = storedByIdentity.get(event.getResponse());
+            if (request != null && response != null) {
+                pairs.add(new StoredCorrelatedPair(request, response, event));
+            }
+        }
+        return pairs;
     }
 
     private CorrelatedEvent toCorrelatedEvent(RawEvent request, RawEvent response, long latencyMs,
