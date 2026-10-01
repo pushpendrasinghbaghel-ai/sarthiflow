@@ -9,11 +9,9 @@ import com.sarthiflow.pipeline.event.RawEvent;
 import com.sarthiflow.pipeline.metric.MetricAggregator;
 import com.sarthiflow.pipeline.metric.MetricBucket;
 import com.sarthiflow.pipeline.otlp.OtlpMetricSender;
-import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.time.Instant;
@@ -94,8 +92,21 @@ public class BlueprintPipelineTest {
                 "ts", "2026-09-29T10:00:00.000Z"
         ));
 
+        RawEvent matchingResponse = new RawEvent(Map.of(
+                "txn_id", "T200",
+                "direction", "RESP",
+                "ts", "2026-10-01T10:00:00.500Z"
+        ));
+
+        RawEvent expiredResponse = new RawEvent(Map.of(
+                "txn_id", "T300",
+                "direction", "RESP",
+                "ts", "2026-10-01T10:00:00.500Z"
+        ));
+
         CorrelationEngine engine = new CorrelationEngine(config);
-        List<CorrelatedEvent> correlated = engine.correlate(Arrays.asList(request, orphanResponse, expiredRequest));
+        List<CorrelatedEvent> correlated = engine.correlate(Arrays.asList(
+                matchingResponse, request, orphanResponse, expiredRequest, expiredResponse));
 
         assertEquals(1, correlated.size());
         assertEquals("T200", correlated.get(0).getRequest().get("txn_id"));
@@ -114,6 +125,8 @@ public class BlueprintPipelineTest {
                 .timestampField("ts")
                 .dimensionFields(Arrays.asList("channel", "response_code"))
                 .granularity("1m")
+                .responseStatusField("response_code")
+                .successValues(Collections.singleton("000"))
                 .addMetric(new MetricDefinition("latency_ms", MetricType.HISTOGRAM))
                 .addMetric(new MetricDefinition("tx_count", MetricType.COUNTER))
                 .build();
@@ -142,7 +155,7 @@ public class BlueprintPipelineTest {
         MetricAggregator aggregator = new MetricAggregator(config);
         List<MetricBucket> buckets = aggregator.aggregate(Arrays.asList(first, second, third));
 
-        assertEquals(3, buckets.size());
+        assertEquals(2, buckets.size());
         MetricBucket atmBucket = buckets.stream()
                 .filter(b -> "ATM".equals(b.getDimensions().get("channel")))
                 .findFirst()
@@ -183,6 +196,36 @@ public class BlueprintPipelineTest {
 
         assertEquals(1, buckets.size());
         assertEquals(500L, buckets.get(0).getP95LatencyMs());
+    }
+
+    @Test
+    public void shouldAllowZeroLatencyAndUseSeparateRequestAndResponseTypeFields() {
+        BlueprintConfig config = new BlueprintConfig.Builder()
+                .name("generic-events")
+                .correlationKeyField("request_id")
+                .requestTypeField("event_kind")
+                .requestValue("begin")
+                .responseTypeField("record_kind")
+                .responseValue("finish")
+                .timestampField("occurred_at")
+                .build();
+
+        RawEvent response = new RawEvent(Map.of(
+                "request_id", "zero-latency",
+                "record_kind", "finish",
+                "occurred_at", "2026-10-01T10:00:00Z"
+        ));
+        RawEvent request = new RawEvent(Map.of(
+                "request_id", "zero-latency",
+                "event_kind", "begin",
+                "occurred_at", "2026-10-01T10:00:00Z"
+        ));
+
+        List<CorrelatedEvent> correlated = new CorrelationEngine(config)
+                .correlate(Arrays.asList(response, request));
+
+        assertEquals(1, correlated.size());
+        assertEquals(0L, correlated.get(0).getLatencyMs());
     }
 
     @Test
