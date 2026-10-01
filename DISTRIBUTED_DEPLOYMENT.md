@@ -12,23 +12,23 @@
 
 ```
 Total:  180 million pairs/day across enterprise
-        ├─ Server 1: 18M pairs/day (multiple files)
-        ├─ Server 2: 18M pairs/day (multiple files)
-        ├─ Server 3: 18M pairs/day (multiple files)
-        ├─ ...
-        └─ Server N: 18M pairs/day (multiple files)
+        â”œâ”€ Server 1: 18M pairs/day (multiple files)
+        â”œâ”€ Server 2: 18M pairs/day (multiple files)
+        â”œâ”€ Server 3: 18M pairs/day (multiple files)
+        â”œâ”€ ...
+        â””â”€ Server N: 18M pairs/day (multiple files)
 
 Per Server (10-server setup):
-        18M pairs/day = 208 pairs/second ✓ Very manageable
+        18M pairs/day = 208 pairs/second âœ“ Very manageable
         
 Per Server (5-server setup):
-        36M pairs/day = 416 pairs/second ✓ Still fine
+        36M pairs/day = 416 pairs/second âœ“ Still fine
         
 Per Server (3-server setup):
-        60M pairs/day = 694 pairs/second ✓ Acceptable
+        60M pairs/day = 694 pairs/second âœ“ Acceptable
 
 Per Server (Single server - worst case):
-        180M pairs/day = 2,083 pairs/second ⚠ Needs optimization
+        180M pairs/day = 2,083 pairs/second âš  Needs optimization
 ```
 
 ---
@@ -37,52 +37,52 @@ Per Server (Single server - worst case):
 
 ```
 ENTERPRISE PAYMENT NETWORK
-┌────────────────────────────────────────────────────────────────┐
-│                                                                │
-│  Server A (ICICI Mumbai)          Server B (ICICI Delhi)      │
-│  ├─ CIDC_Log_001.txt             ├─ CIDC_Log_005.txt         │
-│  ├─ CIDC_Log_002.txt             ├─ CIDC_Log_006.txt         │
-│  └─ CIDC_Log_003.txt             └─ CIDC_Log_007.txt         │
-│        │                                │                      │
-│        ▼                                ▼                      │
-│  ┌──────────────────┐          ┌──────────────────┐           │
-│  │ TAT Extractor A  │          │ TAT Extractor B  │           │
-│  │ (Java process)   │          │ (Java process)   │           │
-│  │ 18M pairs/day    │          │ 18M pairs/day    │           │
-│  │ ~208 msg/sec     │          │ ~208 msg/sec     │           │
-│  │ 500MB RAM        │          │ 500MB RAM        │           │
-│  └──────────┬───────┘          └──────────┬───────┘           │
-│             │                             │                    │
-│  Server C (ICICI Bangalore)               │                    │
-│  ├─ CIDC_Log_008.txt                      │                    │
-│  ├─ CIDC_Log_009.txt                      │                    │
-│  └─ CIDC_Log_010.txt                      │                    │
-│        │                                  │                    │
-│        ▼                                  │                    │
-│  ┌──────────────────┐                     │                    │
-│  │ TAT Extractor C  │                     │                    │
-│  │ (Java process)   │                     │                    │
-│  │ 18M pairs/day    │                     │                    │
-│  │ ~208 msg/sec     │                     │                    │
-│  │ 500MB RAM        │                     │                    │
-│  └──────────┬───────┘                     │                    │
-│             │                             │                    │
-│             └─────────────────┬───────────┘                    │
-│                               │                                │
-│                               ▼ (All instances export)         │
-│                    ┌─────────────────────┐                    │
-│                    │    Dynatrace        │                    │
-│                    │    Managed          │                    │
-│                    │    (Central)        │                    │
-│                    │                     │                    │
-│                    │ Dashboards:         │                    │
-│                    │ - Global TAT        │                    │
-│                    │ - Per-server TAT    │                    │
-│                    │ - Channel trends    │                    │
-│                    │ - SLA metrics       │                    │
-│                    └─────────────────────┘                    │
-│                                                                │
-└────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                                                                â”‚
+â”‚  Server A (SarthiFlow Mumbai)          Server B (SarthiFlow Delhi)      â”‚
+â”‚  â”œâ”€ CIDC_Log_001.txt             â”œâ”€ CIDC_Log_005.txt         â”‚
+â”‚  â”œâ”€ CIDC_Log_002.txt             â”œâ”€ CIDC_Log_006.txt         â”‚
+â”‚  â””â”€ CIDC_Log_003.txt             â””â”€ CIDC_Log_007.txt         â”‚
+â”‚        â”‚                                â”‚                      â”‚
+â”‚        â–¼                                â–¼                      â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”          â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”           â”‚
+â”‚  â”‚ TAT Extractor A  â”‚          â”‚ TAT Extractor B  â”‚           â”‚
+â”‚  â”‚ (Java process)   â”‚          â”‚ (Java process)   â”‚           â”‚
+â”‚  â”‚ 18M pairs/day    â”‚          â”‚ 18M pairs/day    â”‚           â”‚
+â”‚  â”‚ ~208 msg/sec     â”‚          â”‚ ~208 msg/sec     â”‚           â”‚
+â”‚  â”‚ 500MB RAM        â”‚          â”‚ 500MB RAM        â”‚           â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜          â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜           â”‚
+â”‚             â”‚                             â”‚                    â”‚
+â”‚  Server C (SarthiFlow Bangalore)               â”‚                    â”‚
+â”‚  â”œâ”€ CIDC_Log_008.txt                      â”‚                    â”‚
+â”‚  â”œâ”€ CIDC_Log_009.txt                      â”‚                    â”‚
+â”‚  â””â”€ CIDC_Log_010.txt                      â”‚                    â”‚
+â”‚        â”‚                                  â”‚                    â”‚
+â”‚        â–¼                                  â”‚                    â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                     â”‚                    â”‚
+â”‚  â”‚ TAT Extractor C  â”‚                     â”‚                    â”‚
+â”‚  â”‚ (Java process)   â”‚                     â”‚                    â”‚
+â”‚  â”‚ 18M pairs/day    â”‚                     â”‚                    â”‚
+â”‚  â”‚ ~208 msg/sec     â”‚                     â”‚                    â”‚
+â”‚  â”‚ 500MB RAM        â”‚                     â”‚                    â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜                     â”‚                    â”‚
+â”‚             â”‚                             â”‚                    â”‚
+â”‚             â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                    â”‚
+â”‚                               â”‚                                â”‚
+â”‚                               â–¼ (All instances export)         â”‚
+â”‚                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                    â”‚
+â”‚                    â”‚    Dynatrace        â”‚                    â”‚
+â”‚                    â”‚    Managed          â”‚                    â”‚
+â”‚                    â”‚    (Central)        â”‚                    â”‚
+â”‚                    â”‚                     â”‚                    â”‚
+â”‚                    â”‚ Dashboards:         â”‚                    â”‚
+â”‚                    â”‚ - Global TAT        â”‚                    â”‚
+â”‚                    â”‚ - Per-server TAT    â”‚                    â”‚
+â”‚                    â”‚ - Channel trends    â”‚                    â”‚
+â”‚                    â”‚ - SLA metrics       â”‚                    â”‚
+â”‚                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                    â”‚
+â”‚                                                                â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
@@ -94,35 +94,35 @@ Each server has multiple log files being written simultaneously:
 ```
 Server A Log Directory: /var/log/payment/
 
-├─ CIDC_Log_001.txt  (File 1)
-│  ├─ Requests:  [Request1, Request2, Request3, ...]
-│  └─ Responses: [Response1, Response2, Response3, ...]
-│
-├─ CIDC_Log_002.txt  (File 2)
-│  ├─ Requests:  [Request4, Request5, Request6, ...]
-│  └─ Responses: [Response4, Response5, Response6, ...]
-│
-└─ CIDC_Log_003.txt  (File 3 - being written NOW)
-   ├─ Requests:  [Request7, Request8, ...]
-   └─ Responses: [Response7, Response8, ...]
+â”œâ”€ CIDC_Log_001.txt  (File 1)
+â”‚  â”œâ”€ Requests:  [Request1, Request2, Request3, ...]
+â”‚  â””â”€ Responses: [Response1, Response2, Response3, ...]
+â”‚
+â”œâ”€ CIDC_Log_002.txt  (File 2)
+â”‚  â”œâ”€ Requests:  [Request4, Request5, Request6, ...]
+â”‚  â””â”€ Responses: [Response4, Response5, Response6, ...]
+â”‚
+â””â”€ CIDC_Log_003.txt  (File 3 - being written NOW)
+   â”œâ”€ Requests:  [Request7, Request8, ...]
+   â””â”€ Responses: [Response7, Response8, ...]
 
 TAT Extractor on Server A:
-  ┌────────────────────────────────────────────┐
-  │ Single Instance Processes All Files        │
-  │                                            │
-  │ Watch Mode: Monitor all 3 files            │
-  │ Thread 1: Process CIDC_Log_001.txt         │
-  │ Thread 2: Process CIDC_Log_002.txt         │
-  │ Thread 3: Process CIDC_Log_003.txt (live)  │
-  │                                            │
-  │ Correlation Store:                         │
-  │ - Matches requests ↔ responses             │
-  │ - Across ANY file (not file-specific)      │
-  │ - By STAN+PAN (globally unique)            │
-  │                                            │
-  │ Result: Aggregated TAT metrics             │
-  │ Export: Send to Dynatrace                  │
-  └────────────────────────────────────────────┘
+  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+  â”‚ Single Instance Processes All Files        â”‚
+  â”‚                                            â”‚
+  â”‚ Watch Mode: Monitor all 3 files            â”‚
+  â”‚ Thread 1: Process CIDC_Log_001.txt         â”‚
+  â”‚ Thread 2: Process CIDC_Log_002.txt         â”‚
+  â”‚ Thread 3: Process CIDC_Log_003.txt (live)  â”‚
+  â”‚                                            â”‚
+  â”‚ Correlation Store:                         â”‚
+  â”‚ - Matches requests â†” responses             â”‚
+  â”‚ - Across ANY file (not file-specific)      â”‚
+  â”‚ - By STAN+PAN (globally unique)            â”‚
+  â”‚                                            â”‚
+  â”‚ Result: Aggregated TAT metrics             â”‚
+  â”‚ Export: Send to Dynatrace                  â”‚
+  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
@@ -151,7 +151,7 @@ iso8583 {
   watch.poll.interval.seconds = 5
   
   # Threading for multi-file processing
-  parser.threads = 4                     # 4 files × 4 threads each
+  parser.threads = 4                     # 4 files Ã— 4 threads each
   
   # Metrics aggregation
   export.interval.seconds = 300          # Export every 5 minutes
@@ -250,7 +250,7 @@ For 208 pairs/second (18M/day):
   - Correlation store (windowed): 50MB
   - Write queue: 10MB
   - Other JVM overhead: 200MB
-  ─────────────────────────
+  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Total: ~300-500MB heap
   
 Recommendation: -Xmx1g (safe headroom)
@@ -345,7 +345,7 @@ for server in server-a server-b server-c; do
 done
 
 # Check metrics flowing to Dynatrace
-# In Dynatrace: Explore → Custom Metrics → payment.tat
+# In Dynatrace: Explore â†’ Custom Metrics â†’ payment.tat
 # Should see 3 separate instances contributing metrics
 ```
 
@@ -389,24 +389,24 @@ timeseries avg(payment.tat.avg_ms), by: {server, log_file}
 
 ```
 Server Status Check:
-┌──────────┬──────────┬────────────┬────────────┐
-│ Server   │ Status   │ Last Export│ Metrics    │
-├──────────┼──────────┼────────────┼────────────┤
-│ Server A │ ✓ Running│ 2min ago   │ 63/300    │
-│ Server B │ ✓ Running│ 1min ago   │ 52/300    │
-│ Server C │ ✓ Running│ 4min ago   │ 58/300    │ ⚠ Slow
-│ Server D │ ✗ Offline│ 25min ago  │ 0/300     │ 🔴 Alert
-└──────────┴──────────┴────────────┴────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Server   â”‚ Status   â”‚ Last Exportâ”‚ Metrics    â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ Server A â”‚ âœ“ Runningâ”‚ 2min ago   â”‚ 63/300    â”‚
+â”‚ Server B â”‚ âœ“ Runningâ”‚ 1min ago   â”‚ 52/300    â”‚
+â”‚ Server C â”‚ âœ“ Runningâ”‚ 4min ago   â”‚ 58/300    â”‚ âš  Slow
+â”‚ Server D â”‚ âœ— Offlineâ”‚ 25min ago  â”‚ 0/300     â”‚ ðŸ”´ Alert
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 
 Alerts:
-  🔴 Server D offline - no metrics for 25 min
-  ⚠ Server C slow export - 4 min since last metric
+  ðŸ”´ Server D offline - no metrics for 25 min
+  âš  Server C slow export - 4 min since last metric
   
 Per-Server Stats:
   Server A: 18M txns/day, 208/sec, Avg TAT 245ms, Success 99.2%
   Server B: 18M txns/day, 212/sec, Avg TAT 238ms, Success 99.1%
-  Server C: 18M txns/day, 205/sec, Avg TAT 252ms, Success 98.8% ⚠
-  ─────────────────────────────────────────────────────────────
+  Server C: 18M txns/day, 205/sec, Avg TAT 252ms, Success 98.8% âš 
+  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Total:   54M txns/day, 625/sec, Avg TAT 245ms, Success 99.0%
 ```
 
@@ -427,7 +427,7 @@ Per-Instance (Each Server):
   CPU:              10-20% of 1 core
 
 Total Enterprise:
-  Throughput:       ~2,000 pairs/second (10 × 208)
+  Throughput:       ~2,000 pairs/second (10 Ã— 208)
   Memory:           5GB across all instances
   Disk I/O:         Minimal
   Network:          Minimal
@@ -438,29 +438,30 @@ Total Enterprise:
 
 ## Key Points
 
-✅ **Distributed = Manageable**
+âœ… **Distributed = Manageable**
   - 180M pairs across 10 servers = 18M each = 208 pairs/sec per server
   - This is very low load (even single-core Solaris can handle)
 
-✅ **Multi-File Handling Built-In**
+âœ… **Multi-File Handling Built-In**
   - Each instance watches directory, processes all files in parallel
   - No need for complex sharding logic
 
-✅ **Low Resource Footprint**
+âœ… **Low Resource Footprint**
   - 500MB heap per instance
   - Can run on standard payment servers
   - No performance impact on core transaction processing
 
-✅ **Centralized Visibility**
+âœ… **Centralized Visibility**
   - All instances export to single Dynatrace
   - Global dashboards show enterprise-wide TAT
   - Per-server breakdowns available
 
-✅ **Easy to Scale**
+âœ… **Easy to Scale**
   - Add servers = add instances = linear scaling
   - No complex coordination between instances
   - Each server independent (fail-isolated)
 
 ---
 
-**Architecture Ready for Distributed Deployment Across Multiple Servers** ✅
+**Architecture Ready for Distributed Deployment Across Multiple Servers** âœ…
+

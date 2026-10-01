@@ -40,18 +40,18 @@ fi
 
 echo -e "${YELLOW}[1/5] Building package...${NC}"
 mvn clean package -q || { echo -e "${RED}Build failed${NC}"; exit 1; }
-echo -e "${GREEN}✓ Build complete${NC}"
+echo -e "${GREEN}âœ“ Build complete${NC}"
 
 echo -e "${YELLOW}[2/5] Creating directories on $TARGET_HOST...${NC}"
 ssh ${TARGET_USER}@${TARGET_HOST} "sudo mkdir -p ${INSTALL_DIR} ${DATA_DIR} ${LOG_DIR} && \
   sudo chown ${TARGET_USER}:${TARGET_USER} ${INSTALL_DIR} ${DATA_DIR} ${LOG_DIR} && \
   sudo chmod 755 ${INSTALL_DIR} ${DATA_DIR} ${LOG_DIR}"
-echo -e "${GREEN}✓ Directories created${NC}"
+echo -e "${GREEN}âœ“ Directories created${NC}"
 
 echo -e "${YELLOW}[3/5] Uploading JAR and config...${NC}"
 scp "$JAR_FILE" "${TARGET_USER}@${TARGET_HOST}:${INSTALL_DIR}/"
 scp "src/main/resources/application.conf" "${TARGET_USER}@${TARGET_HOST}:${INSTALL_DIR}/"
-echo -e "${GREEN}✓ Files uploaded${NC}"
+echo -e "${GREEN}âœ“ Files uploaded${NC}"
 
 echo -e "${YELLOW}[4/5] Creating systemd service...${NC}"
 ssh ${TARGET_USER}@${TARGET_HOST} "sudo tee /etc/systemd/system/iso8583-tat.service > /dev/null" <<EOF
@@ -76,7 +76,7 @@ WantedBy=multi-user.target
 EOF
 
 ssh ${TARGET_USER}@${TARGET_HOST} "sudo systemctl daemon-reload && sudo systemctl enable iso8583-tat"
-echo -e "${GREEN}✓ Service created${NC}"
+echo -e "${GREEN}âœ“ Service created${NC}"
 
 echo -e "${YELLOW}[5/5] Instructions for next steps:${NC}"
 echo "1. SSH to $TARGET_HOST and edit the config:"
@@ -84,7 +84,7 @@ echo "   ssh ${TARGET_USER}@${TARGET_HOST}"
 echo "   vi ${INSTALL_DIR}/application.conf"
 echo ""
 echo "2. Update these values:"
-echo "   - log.path: path to ICICI payment logs"
+echo "   - log.path: path to SarthiFlow payment logs"
 echo "   - bindplane.url: your Dynatrace Bindplane endpoint"
 echo ""
 echo "3. Start the service:"
@@ -93,4 +93,5 @@ echo ""
 echo "4. Monitor logs:"
 echo "   sudo journalctl -u iso8583-tat -f"
 echo ""
-echo -e "${GREEN}✓ Deployment complete${NC}"
+echo -e "${GREEN}âœ“ Deployment complete${NC}"
+

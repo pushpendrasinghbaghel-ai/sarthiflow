@@ -1,4 +1,4 @@
-package com.icici.payment.iso8583.model;
+package com.sarthiflow.model;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -89,3 +89,4 @@ public class TATTransaction {
                 '}';
     }
 }
+

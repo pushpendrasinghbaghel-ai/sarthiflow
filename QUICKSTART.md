@@ -7,11 +7,11 @@ Get the ISO8583 TAT Extractor running in 5 minutes.
 ```bash
 # Java 11+
 java -version
-# Output: openjdk version "11.0.x" or higher ✓
+# Output: openjdk version "11.0.x" or higher âœ“
 
 # Maven 3.8+
 mvn -version
-# Output: Apache Maven 3.8.x ✓
+# Output: Apache Maven 3.8.x âœ“
 ```
 
 If missing, install:
@@ -100,7 +100,7 @@ SELECT channel, COUNT(*), AVG(tat_millis) FROM tat_transactions
 ### Step 1: Prepare Your Log File
 
 ```bash
-# Copy your ICICI payment logs
+# Copy your SarthiFlow payment logs
 cp /var/log/payment/CIDC_SampleLogs.txt ./my-logs.txt
 
 # Or use the sample data
@@ -203,12 +203,12 @@ curl -v "https://<TENANT>.managed.apps.dynatrace.com/api/v1/logs" \
 
 ### In Dynatrace Managed UI
 
-1. Navigate to **Explore → Custom Metrics**
+1. Navigate to **Explore â†’ Custom Metrics**
 2. Search for `payment.transaction.tat`
 3. Should see:
-   - **payment.transaction.tat** — individual transaction TAT
-   - **payment.channel.tat** — aggregated by channel (UPI, CARD, WALLET)
-   - **payment.response_code.tat** — aggregated by response code
+   - **payment.transaction.tat** â€” individual transaction TAT
+   - **payment.channel.tat** â€” aggregated by channel (UPI, CARD, WALLET)
+   - **payment.response_code.tat** â€” aggregated by response code
 
 ### Example Query in Dynatrace DQL
 
@@ -279,7 +279,7 @@ grep "ERROR\|Exception" tat-extractor.log
 
 ### Development
 
-- Modify `src/main/java/com/icici/payment/iso8583/` for custom logic
+- Modify `src/main/java/com/sarthiflow/payment/iso8583/` for custom logic
 - Add new metrics in `TATMetricsExporter.java`
 - Test with `mvn test`
 - Rebuild: `mvn clean package`
@@ -313,3 +313,4 @@ java -Xmx4g -Xms2g \
 - Alert on TAT threshold breaches
 
 See [README.md](README.md) for production setup and [EDGE_CASES.md](EDGE_CASES.md) for handling non-adjacent messages.
+

@@ -30,5 +30,6 @@
     </root>
 
     <!-- Application package logging -->
-    <logger name="com.icici.payment.iso8583" level="DEBUG"/>
+    <logger name="com.sarthiflow" level="DEBUG"/>
 </configuration>
+

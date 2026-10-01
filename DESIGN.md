@@ -2,7 +2,7 @@
 
 ## Problem Statement
 
-**Customer:** ICICI Bank  
+**Customer:** SarthiFlow Bank  
 **Challenge:** Extract Turn-Around Time (TAT) metrics from ISO8583 payment transaction logs and send to Dynatrace Managed.
 
 **Issue:** ISO8583 logs contain separate request (MessageId 1200) and response (MessageId 1210) messages that must be correlated, but:
@@ -23,47 +23,47 @@
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│ ISO8583 Logs (multiline text format)                             │
-│ Separate request (1200) and response (1210) messages              │
-└─────────────────────┬────────────────────────────────────────────┘
-                      │
-                      ▼
-┌──────────────────────────────────────────────────────────────────┐
-│ JAVA: ISO8583Parser                                              │
-│ Parse & extract fields (002=PAN, 011=STAN, 123=Channel, etc)     │
-└─────────────────────┬────────────────────────────────────────────┘
-                      │
-                      ▼
-┌──────────────────────────────────────────────────────────────────┐
-│ JAVA: CorrelationStore (In-Memory + SQLite)                      │
-│ Match request ↔ response by STAN+PAN key                         │
-│ Calculate TAT = response_time - request_time                     │
-│ Expiration: 60 min (configurable) → mark TIMEOUT                │
-└─────────────────────┬────────────────────────────────────────────┘
-                      │
-                      ▼
-┌──────────────────────────────────────────────────────────────────┐
-│ JAVA: EventExporter (Minimal)                                    │
-│ Convert each TAT to raw JSON event (NO aggregation):             │
-│ {transaction_id, tat_ms, channel, response_code, ...}            │
-│ Export: POST to Dynatrace Logs API or Bindplane                  │
-└─────────────────────┬────────────────────────────────────────────┘
-                      │
-                      ▼
-┌──────────────────────────────────────────────────────────────────┐
-│ Dynatrace / Bindplane                                            │
-│ Ingest raw events (one per TAT)                                  │
-└─────────────────────┬────────────────────────────────────────────┘
-                      │
-                      ▼
-┌──────────────────────────────────────────────────────────────────┐
-│ DYNATRACE DQL (All Aggregation Happens Here)                     │
-│ timeseries avg(tat_ms), by: {channel}                            │
-│ timeseries percentile(tat_ms, 95), by: {channel}                 │
-│ filter response_code = "000"                                     │
-│ Create dashboards, set alerts, analyze trends                    │
-└──────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ ISO8583 Logs (multiline text format)                             â”‚
+â”‚ Separate request (1200) and response (1210) messages              â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                      â”‚
+                      â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ JAVA: ISO8583Parser                                              â”‚
+â”‚ Parse & extract fields (002=PAN, 011=STAN, 123=Channel, etc)     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                      â”‚
+                      â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ JAVA: CorrelationStore (In-Memory + SQLite)                      â”‚
+â”‚ Match request â†” response by STAN+PAN key                         â”‚
+â”‚ Calculate TAT = response_time - request_time                     â”‚
+â”‚ Expiration: 60 min (configurable) â†’ mark TIMEOUT                â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                      â”‚
+                      â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ JAVA: EventExporter (Minimal)                                    â”‚
+â”‚ Convert each TAT to raw JSON event (NO aggregation):             â”‚
+â”‚ {transaction_id, tat_ms, channel, response_code, ...}            â”‚
+â”‚ Export: POST to Dynatrace Logs API or Bindplane                  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                      â”‚
+                      â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Dynatrace / Bindplane                                            â”‚
+â”‚ Ingest raw events (one per TAT)                                  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                      â”‚
+                      â–¼
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ DYNATRACE DQL (All Aggregation Happens Here)                     â”‚
+â”‚ timeseries avg(tat_ms), by: {channel}                            â”‚
+â”‚ timeseries percentile(tat_ms, 95), by: {channel}                 â”‚
+â”‚ filter response_code = "000"                                     â”‚
+â”‚ Create dashboards, set alerts, analyze trends                    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 **Philosophy:** Java does the MINIMUM (parse + correlate + calculate). Dynatrace does the MAXIMUM (aggregation, percentiles, grouping, dashboards).
@@ -76,19 +76,19 @@
 **Purpose:** Represent a single parsed ISO8583 message
 
 **Fields:**
-- `int pid` — Process ID
-- `LocalDateTime receiveTime` — Timestamp (from Received At or Sent At)
-- `String messageId` — 1200 (request) or 1210 (response)
-- `String direction` — "Received" or "Sent"
-- `Map<String, String> fields` — Field number → value (e.g., "011" → "661765234767")
+- `int pid` â€” Process ID
+- `LocalDateTime receiveTime` â€” Timestamp (from Received At or Sent At)
+- `String messageId` â€” 1200 (request) or 1210 (response)
+- `String direction` â€” "Received" or "Sent"
+- `Map<String, String> fields` â€” Field number â†’ value (e.g., "011" â†’ "661765234767")
 
 **Key Methods:**
-- `getField(String fieldNum)` — Retrieve field value
-- `getStan()` — Field 011 (System Trace Audit Number)
-- `getPan()` — Field 002 (Primary Account Number)
-- `getChannel()` — Field 123 (UPI/CARD/WALLET/etc)
-- `getResponseCode()` — Field 039 (000 = success, others = failure)
-- `getCorrelationKey()` — Returns PAN + "|" + STAN
+- `getField(String fieldNum)` â€” Retrieve field value
+- `getStan()` â€” Field 011 (System Trace Audit Number)
+- `getPan()` â€” Field 002 (Primary Account Number)
+- `getChannel()` â€” Field 123 (UPI/CARD/WALLET/etc)
+- `getResponseCode()` â€” Field 039 (000 = success, others = failure)
+- `getCorrelationKey()` â€” Returns PAN + "|" + STAN
 
 ---
 
@@ -96,18 +96,18 @@
 **Purpose:** Represent a matched request/response pair
 
 **Fields:**
-- `String correlationKey` — PAN|STAN (unique identifier)
-- `ISO8583Message requestMessage` — Request
-- `ISO8583Message responseMessage` — Response (null until matched)
-- `long tatMillis` — Calculated TAT in milliseconds
-- `boolean isComplete` — True when response received
-- `LocalDateTime createdAt` — When request was stored
+- `String correlationKey` â€” PAN|STAN (unique identifier)
+- `ISO8583Message requestMessage` â€” Request
+- `ISO8583Message responseMessage` â€” Response (null until matched)
+- `long tatMillis` â€” Calculated TAT in milliseconds
+- `boolean isComplete` â€” True when response received
+- `LocalDateTime createdAt` â€” When request was stored
 
 **Key Methods:**
-- `setResponseMessage(ISO8583Message)` — Sets response & calculates TAT
-- `calculateTAT()` — ChronoUnit.MILLIS.between(request time, response time)
-- `isExpired(long expirationMinutes)` — Check if exceeded expiration window
-- `getChannel()`, `getStan()`, `getPan()`, `getResponseCode()` — Convenience accessors
+- `setResponseMessage(ISO8583Message)` â€” Sets response & calculates TAT
+- `calculateTAT()` â€” ChronoUnit.MILLIS.between(request time, response time)
+- `isExpired(long expirationMinutes)` â€” Check if exceeded expiration window
+- `getChannel()`, `getStan()`, `getPan()`, `getResponseCode()` â€” Convenience accessors
 
 ---
 
@@ -115,17 +115,17 @@
 **Purpose:** Extract fields from multiline log text
 
 **Static Patterns:**
-- `PID_PATTERN` — "Pid: (\\d+)"
-- `RECEIVED_PATTERN` — "Received At: (.+)"
-- `SENT_PATTERN` — "Sent At: (.+)"
-- `MESSAGE_ID_PATTERN` — "MessageId: (\\d+)"
-- `FIELD_PATTERN` — "Field (\\d{3}): (.*)"
-- `TIMESTAMP_FORMAT` — "MM/dd/yyyy HH:mm:ss.SSS"
+- `PID_PATTERN` â€” "Pid: (\\d+)"
+- `RECEIVED_PATTERN` â€” "Received At: (.+)"
+- `SENT_PATTERN` â€” "Sent At: (.+)"
+- `MESSAGE_ID_PATTERN` â€” "MessageId: (\\d+)"
+- `FIELD_PATTERN` â€” "Field (\\d{3}): (.*)"
+- `TIMESTAMP_FORMAT` â€” "MM/dd/yyyy HH:mm:ss.SSS"
 
 **Key Methods:**
-- `parseMessage(String messageBlock)` — Parse one <====> delimited block
+- `parseMessage(String messageBlock)` â€” Parse one <====> delimited block
   - Iterate lines, apply regex patterns, populate ISO8583Message
-- `splitMessageBlocks(String logContent)` — Split by "<=====>" separator
+- `splitMessageBlocks(String logContent)` â€” Split by "<=====>" separator
 
 ---
 
@@ -133,21 +133,21 @@
 **Purpose:** Maintain in-memory transaction buffer + persist to SQLite
 
 **Fields:**
-- `Map<String, TATTransaction> pendingTransactions` — Requests awaiting responses
-- `List<TATTransaction> completedTransactions` — Matched request/response pairs
-- `Connection dbConnection` — SQLite connection
-- `long expirationMinutes` — Config parameter
+- `Map<String, TATTransaction> pendingTransactions` â€” Requests awaiting responses
+- `List<TATTransaction> completedTransactions` â€” Matched request/response pairs
+- `Connection dbConnection` â€” SQLite connection
+- `long expirationMinutes` â€” Config parameter
 
 **Key Methods:**
-- `processMessage(ISO8583Message message)` — Main entry point
+- `processMessage(ISO8583Message message)` â€” Main entry point
   - If "Received": `pendingTransactions.putIfAbsent(correlationKey, new TATTransaction(...))`
   - If "Sent": lookup, if found call `setResponseMessage()`, move to completed
-- `cleanExpiredTransactions()` — Run periodically (every 5 min)
+- `cleanExpiredTransactions()` â€” Run periodically (every 5 min)
   - Find entries where `isExpired(expirationMinutes) == true`
   - Persist as TIMEOUT, remove from pending
-- `persistTransaction(TATTransaction)` — Insert into `tat_transactions` table
-- `persistOrphanedTransaction(TATTransaction)` — Insert with `tat_millis = -1` and `response_code = "TIMEOUT"`
-- `getCompletedTransactions()` — Return list for metrics export
+- `persistTransaction(TATTransaction)` â€” Insert into `tat_transactions` table
+- `persistOrphanedTransaction(TATTransaction)` â€” Insert with `tat_millis = -1` and `response_code = "TIMEOUT"`
+- `getCompletedTransactions()` â€” Return list for metrics export
 
 **Database Schema:**
 ```sql
@@ -172,17 +172,17 @@ CREATE TABLE tat_transactions (
 **Philosophy:** Minimal processing. Send raw events; let Dynatrace DQL do aggregation.
 
 **Fields:**
-- `CorrelationStore store` — Reference to completed transactions
-- `String dynatraceUrl` — Dynatrace HTTP ingest endpoint
-- `OkHttpClient httpClient` — HTTP client
+- `CorrelationStore store` â€” Reference to completed transactions
+- `String dynatraceUrl` â€” Dynatrace HTTP ingest endpoint
+- `OkHttpClient httpClient` â€” HTTP client
 
 **Key Methods:**
-- `exportMetrics()` — Called periodically
+- `exportMetrics()` â€” Called periodically
   1. Get completed transactions from store
   2. For each TATTransaction: create JSON event
   3. POST to Dynatrace
 
-- `createRawEvent(TATTransaction)` — Single TAT as raw event (NO aggregation):
+- `createRawEvent(TATTransaction)` â€” Single TAT as raw event (NO aggregation):
   ```json
   {
     "timestamp": 1725088946721,
@@ -196,8 +196,8 @@ CREATE TABLE tat_transactions (
   }
   ```
 
-- `maskPan(String pan)` — Return "****" + last 4 digits
-- `exportToBindplane(List<JsonObject> events)` — POST each event via OkHttp
+- `maskPan(String pan)` â€” Return "****" + last 4 digits
+- `exportToBindplane(List<JsonObject> events)` â€” POST each event via OkHttp
   - Endpoint: `POST https://<TENANT>.managed.apps.dynatrace.com/api/v1/logs/ingest`
   - Or: `POST http://bindplane-host:8888/v1/logs`
   - Each event = one HTTP request or batched in array
@@ -208,16 +208,16 @@ CREATE TABLE tat_transactions (
 **Purpose:** Load settings from application.conf
 
 **Fields:**
-- `String logFilePath` — Input log file path
-- `String dbPath` — SQLite database location
-- `String bindplaneUrl` — Bindplane HTTP endpoint
-- `long expirationMinutes` — Transaction timeout window
-- `long exportIntervalSeconds` — Metric export frequency
-- `boolean watchMode` — Continuous monitoring vs. one-time
+- `String logFilePath` â€” Input log file path
+- `String dbPath` â€” SQLite database location
+- `String bindplaneUrl` â€” Bindplane HTTP endpoint
+- `long expirationMinutes` â€” Transaction timeout window
+- `long exportIntervalSeconds` â€” Metric export frequency
+- `boolean watchMode` â€” Continuous monitoring vs. one-time
 
 **Key Methods:**
-- `loadFromFile(String configPath)` — Parse HOCON file via Typesafe Config
-- `applyDefaults()` — Fallback defaults if file not found
+- `loadFromFile(String configPath)` â€” Parse HOCON file via Typesafe Config
+- `applyDefaults()` â€” Fallback defaults if file not found
 
 ---
 
@@ -225,7 +225,7 @@ CREATE TABLE tat_transactions (
 **Purpose:** Main application entry point
 
 **Flow:**
-1. `main(String[] args)` → `run(String[] args)`
+1. `main(String[] args)` â†’ `run(String[] args)`
 2. Load configuration
 3. Initialize components:
    - `CorrelationStore` (SQLite + memory)
@@ -241,8 +241,8 @@ CREATE TABLE tat_transactions (
 7. Keep running until shutdown
 
 **Key Methods:**
-- `processLogFile(Path logFile)` — Read entire file, parse, process
-- `watchLogFile(Path logFile)` — Monitor for changes, re-process incrementally
+- `processLogFile(Path logFile)` â€” Read entire file, parse, process
+- `watchLogFile(Path logFile)` â€” Monitor for changes, re-process incrementally
 
 ---
 
@@ -278,7 +278,7 @@ Field 123: UPI
    - Pass to CorrelationStore
 
 3. **CorrelationStore (request):**
-   - Direction="Received" → Store in pendingTransactions[correlationKey]
+   - Direction="Received" â†’ Store in pendingTransactions[correlationKey]
 
 4. **Second block (response):**
    - Create ISO8583Message
@@ -288,9 +288,9 @@ Field 123: UPI
    - Pass to CorrelationStore
 
 5. **CorrelationStore (response):**
-   - Direction="Sent" → Lookup pendingTransactions[correlationKey]
+   - Direction="Sent" â†’ Lookup pendingTransactions[correlationKey]
    - Found! Call `transaction.setResponseMessage(message)`
-   - TATTransaction.calculateTAT() → 186 milliseconds
+   - TATTransaction.calculateTAT() â†’ 186 milliseconds
    - Move to completedTransactions
    - Persist to SQLite
 
@@ -359,12 +359,12 @@ mvn clean package
 ```
 
 ### Dependencies (Maven pom.xml)
-- `com.google.code.gson:gson` — JSON serialization
-- `org.xerial:sqlite-jdbc` — SQLite driver
-- `io.prometheus:simpleclient` — Metrics (optional, for future Prometheus export)
-- `com.squareup.okhttp3:okhttp` — HTTP client
-- `ch.qos.logback:logback-classic` — Logging
-- `com.typesafe:config` — HOCON config parsing
+- `com.google.code.gson:gson` â€” JSON serialization
+- `org.xerial:sqlite-jdbc` â€” SQLite driver
+- `io.prometheus:simpleclient` â€” Metrics (optional, for future Prometheus export)
+- `com.squareup.okhttp3:okhttp` â€” HTTP client
+- `ch.qos.logback:logback-classic` â€” Logging
+- `com.typesafe:config` â€” HOCON config parsing
 
 ### Runtime Requirements
 - Java 11+ (LTS recommended: 11, 17, 21)
@@ -391,7 +391,7 @@ mvn clean package
 | Scenario | Behavior |
 |----------|----------|
 | Response never arrives | Request expires after `correlation.expiration.minutes`, persisted with `response_code=TIMEOUT`, `tat_millis=-1` |
-| Responses out of order | Correlated by STAN+PAN key, not log position → works correctly |
+| Responses out of order | Correlated by STAN+PAN key, not log position â†’ works correctly |
 | Orphaned response (no request) | Logged as warning, not persisted, app continues |
 | Log file with mixed batches | In-memory buffer handles multi-batch/file scenarios |
 | High volume (500k txns/day) | Tune JVM: `-Xmx4g -Xms2g`, expiration window, export interval |
@@ -487,12 +487,12 @@ fetch logs
 
 ## Future Enhancement Points
 
-1. **Pluggable exporters** — Add Kafka, direct Dynatrace API, gRPC
-2. **Multiple log formats** — Add Grok patterns for other payment systems
-3. **Distributed setup** — PostgreSQL instead of SQLite for multi-instance correlation
-4. **Dynatrace Dashboard API** — Auto-generate dashboards from DQL queries
-5. **Alert Rules** — Trigger alerts when p95_tat_ms > 5000 or success_rate < 99%
-6. **Event enrichment** — Add merchant ID, transaction type from other sources
+1. **Pluggable exporters** â€” Add Kafka, direct Dynatrace API, gRPC
+2. **Multiple log formats** â€” Add Grok patterns for other payment systems
+3. **Distributed setup** â€” PostgreSQL instead of SQLite for multi-instance correlation
+4. **Dynatrace Dashboard API** â€” Auto-generate dashboards from DQL queries
+5. **Alert Rules** â€” Trigger alerts when p95_tat_ms > 5000 or success_rate < 99%
+6. **Event enrichment** â€” Add merchant ID, transaction type from other sources
 
 ---
 
@@ -507,3 +507,4 @@ fetch logs
 
 **Complete Design Document for Agent Handoff**  
 Ready for: Code review, extension, porting to other languages, or deployment
+

@@ -1,4 +1,4 @@
-﻿# Generate large ISO8583 sample file with millions of transaction pairs
+# Generate large ISO8583 sample file with millions of transaction pairs
 param(
     [string]$OutputFile = "CIDC_100k.txt",
     [int]$NumPairs = 100000

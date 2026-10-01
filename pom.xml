@@ -5,13 +5,13 @@
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.icici.payment</groupId>
-    <artifactId>iso8583-tat-extractor</artifactId>
+    <groupId>com.sarthiflow</groupId>
+    <artifactId>sarthiflow</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>ISO8583 TAT Extractor</name>
-    <description>Extract TAT metrics from ISO8583 request/response pairs for ICICI Bank payment system</description>
+    <name>SarthiFlow</name>
+    <description>Generic telemetry pipeline for extracting and exporting processing metrics from event streams.</description>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -107,10 +107,10 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.icici.payment.iso8583.TATExtractorApp</mainClass>
+                            <mainClass>com.sarthiflow.TATExtractorApp</mainClass>
                         </manifest>
                     </archive>
-                    <finalName>iso8583-tat-extractor</finalName>
+                    <finalName>sarthiflow</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
@@ -125,3 +125,5 @@
         </plugins>
     </build>
 </project>
+
+

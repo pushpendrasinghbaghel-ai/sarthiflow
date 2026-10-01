@@ -2,7 +2,7 @@
 
 ## What Was Built
 
-A **production-grade Java application** that solves the ISO8583 request/response correlation problem for ICICI Bank's payment processing system.
+A **production-grade Java application** that solves the ISO8583 request/response correlation problem for SarthiFlow Bank's payment processing system.
 
 ### The Challenge
 
@@ -14,44 +14,44 @@ A **production-grade Java application** that solves the ISO8583 request/response
 ### The Solution
 
 ```
-ISO8583 Logs → Parser → Correlator → Metrics Calculator → Dynatrace (via Bindplane)
+ISO8583 Logs â†’ Parser â†’ Correlator â†’ Metrics Calculator â†’ Dynatrace (via Bindplane)
 ```
 
 ## Project Structure
 
 ```
 iso8583-tat-extractor/
-├── pom.xml                                 # Maven build (all dependencies specified)
-├── README.md                               # Production deployment guide
-├── QUICKSTART.md                           # 5-minute getting started
-├── EDGE_CASES.md                           # Handling non-adjacent messages
-├── PROJECT_SUMMARY.md                      # This file
-│
-├── src/main/java/com/icici/payment/iso8583/
-│   ├── TATExtractorApp.java               # Main entry point
-│   ├── Configuration.java                  # Load from application.conf
-│   ├── model/
-│   │   ├── ISO8583Message.java            # Parsed message (fields + metadata)
-│   │   └── TATTransaction.java            # Request+Response pair with TAT
-│   ├── parser/
-│   │   └── ISO8583Parser.java             # Extract fields from multiline logs
-│   ├── store/
-│   │   └── CorrelationStore.java          # SQLite-backed transaction buffer
-│   └── metrics/
-│       └── TATMetricsExporter.java        # Calculate & export metrics to Bindplane
-│
-├── src/main/resources/
-│   ├── application.conf                    # Configuration template
-│   └── logback.xml                         # Logging setup
-│
-├── sample-data/
-│   └── sample-logs.txt                     # Test data (3 complete req/resp pairs)
-│
-├── scripts/
-│   └── deploy-solaris.sh                   # Solaris 11 deployment automation
-│
-└── target/
-    └── iso8583-tat-extractor.jar          # Fat JAR (ready to deploy)
+â”œâ”€â”€ pom.xml                                 # Maven build (all dependencies specified)
+â”œâ”€â”€ README.md                               # Production deployment guide
+â”œâ”€â”€ QUICKSTART.md                           # 5-minute getting started
+â”œâ”€â”€ EDGE_CASES.md                           # Handling non-adjacent messages
+â”œâ”€â”€ PROJECT_SUMMARY.md                      # This file
+â”‚
+â”œâ”€â”€ src/main/java/com/sarthiflow/payment/iso8583/
+â”‚   â”œâ”€â”€ TATExtractorApp.java               # Main entry point
+â”‚   â”œâ”€â”€ Configuration.java                  # Load from application.conf
+â”‚   â”œâ”€â”€ model/
+â”‚   â”‚   â”œâ”€â”€ ISO8583Message.java            # Parsed message (fields + metadata)
+â”‚   â”‚   â””â”€â”€ TATTransaction.java            # Request+Response pair with TAT
+â”‚   â”œâ”€â”€ parser/
+â”‚   â”‚   â””â”€â”€ ISO8583Parser.java             # Extract fields from multiline logs
+â”‚   â”œâ”€â”€ store/
+â”‚   â”‚   â””â”€â”€ CorrelationStore.java          # SQLite-backed transaction buffer
+â”‚   â””â”€â”€ metrics/
+â”‚       â””â”€â”€ TATMetricsExporter.java        # Calculate & export metrics to Bindplane
+â”‚
+â”œâ”€â”€ src/main/resources/
+â”‚   â”œâ”€â”€ application.conf                    # Configuration template
+â”‚   â””â”€â”€ logback.xml                         # Logging setup
+â”‚
+â”œâ”€â”€ sample-data/
+â”‚   â””â”€â”€ sample-logs.txt                     # Test data (3 complete req/resp pairs)
+â”‚
+â”œâ”€â”€ scripts/
+â”‚   â””â”€â”€ deploy-solaris.sh                   # Solaris 11 deployment automation
+â”‚
+â””â”€â”€ target/
+    â””â”€â”€ iso8583-tat-extractor.jar          # Fat JAR (ready to deploy)
 ```
 
 ## Key Features
@@ -97,15 +97,15 @@ For each response code:
 Log Input:
   Pid: 22664 Received At: 12:02:26.721
   MessageId: 1200
-  Field 002: 9229814714205000026  ← PAN
-  Field 011: 661765234767         ← STAN
-  Field 123: UPI                  ← Channel
+  Field 002: 9229814714205000026  â† PAN
+  Field 011: 661765234767         â† STAN
+  Field 123: UPI                  â† Channel
 
   Pid: 22664 Sent At: 12:02:26.907
   MessageId: 1210
-  Field 002: 9229814714205000026  ← Same PAN
-  Field 011: 661765234767         ← Same STAN
-  Field 039: 000                  ← Response code
+  Field 002: 9229814714205000026  â† Same PAN
+  Field 011: 661765234767         â† Same STAN
+  Field 039: 000                  â† Response code
 
 Processing:
   1. Parse request: Create ISO8583Message, extract fields
@@ -133,11 +133,11 @@ Output Metric:
 
 The solution is designed for real-world scenarios:
 
-✅ **Out-of-Order Responses** — Correlated by key, not log position  
-✅ **Delayed Responses** — In-memory buffer keeps requests alive  
-✅ **Missing Responses** — Expiration marks as TIMEOUT, doesn't crash  
-✅ **Orphaned Responses** — Logged as warning, skipped gracefully  
-✅ **Batch Processing** — Watch mode monitors log continuously  
+âœ… **Out-of-Order Responses** â€” Correlated by key, not log position  
+âœ… **Delayed Responses** â€” In-memory buffer keeps requests alive  
+âœ… **Missing Responses** â€” Expiration marks as TIMEOUT, doesn't crash  
+âœ… **Orphaned Responses** â€” Logged as warning, skipped gracefully  
+âœ… **Batch Processing** â€” Watch mode monitors log continuously  
 
 See [EDGE_CASES.md](EDGE_CASES.md) for detailed scenarios.
 
@@ -314,3 +314,4 @@ logging {
 **Status**: Ready for production deployment  
 **Last Updated**: 2026-09-26  
 **Author**: Pushpendra Singh Bagel (pushpendra.singhbaghel@dynatrace.com)
+

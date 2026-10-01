@@ -1,4 +1,4 @@
-package com.icici.payment.iso8583.file;
+package com.sarthiflow.file;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +61,7 @@ public class FileOffsetTracker {
             long lastSize = rs.getLong("last_file_size");
 
             if (currentSize < lastOffset) {
-                logger.info("File rotated detected: {} (size {} → {}). Starting from 0",
+                logger.info("File rotated detected: {} (size {} â†’ {}). Starting from 0",
                     file.getFileName(), lastSize, currentSize);
                 return 0;
             }
@@ -122,3 +122,4 @@ public class FileOffsetTracker {
         }
     }
 }
+

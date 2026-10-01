@@ -1,6 +1,6 @@
-package com.icici.payment.iso8583.parser;
+package com.sarthiflow.parser;
 
-import com.icici.payment.iso8583.model.ISO8583Message;
+import com.sarthiflow.model.ISO8583Message;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
@@ -71,3 +71,4 @@ public class ISO8583Parser {
         return logContent.split("<=========>");
     }
 }
+
